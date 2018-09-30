@@ -46,13 +46,13 @@ def plot_manhattan(plt, df, pv_thr=None, colors=None, offset=None, callback=None
     dx = offset * df['pos'].values.max()
     _x = 0
     xticks = []
-    for chrom_i in sp.unique(chrom):
-        _df = df[df['chrom']==df['chrom_i']]
+    for chrom_i in sp.unique(df['chrom'].values):
+        _df = df[df['chrom']==chrom_i]
         if chrom_i%2==0:    color = colors[0]
         else:               color = colors[1]
         pl.plot(_df['pos'] + _x, -sp.log10(_df['pv']), '.', color=color)
         if callback is not None: callback(_df)
-        xticks.append(_x + 0.5 * df['_pos'].values.max())
-        _x += df['_pos'].values.max() + dx
+        xticks.append(_x + 0.5 * _df['pos'].values.max())
+        _x += _df['pos'].values.max() + dx
     plt.set_xticks(xticks)
-    plt.set_xticklabels(sp.unique(chrom))
+    plt.set_xticklabels(sp.unique(df['chrom'].values))
