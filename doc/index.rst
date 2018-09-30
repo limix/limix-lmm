@@ -8,7 +8,7 @@ StructLMM's documentation
    :maxdepth: 3
 
    install
-   python
+   quickstart
    public
 
 *****************
