@@ -20,7 +20,7 @@ Now we are ready to go.
 .. literalinclude:: examples/lmm_example.py
    :encoding: latin-1
 
-The following script can be downloader :download:`here <lmm_example.py>`.
+:download:`Download script <examples/lmm_example.py>`.
 
 
 Multi-trait Linear Mixed Model (MTLMM)
@@ -29,7 +29,7 @@ Multi-trait Linear Mixed Model (MTLMM)
 .. literalinclude:: examples/mtlmm_example.py
    :encoding: latin-1
 
-The following script can be downloader :download:`here <mtlmm_example.py>`.
+:download:`Download script <examples/mtlmm_example.py>`.
 
 
 A full description of all methods can be found in :ref:`public`.

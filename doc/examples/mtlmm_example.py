@@ -2,7 +2,7 @@ import scipy as sp
 import scipy.linalg as la
 from limix_core.gp import GP2KronSum
 from limix_core.covar import FreeFormCov
-from limix_lmm.lmm_core import MTMM
+from limix_lmm.lmm_core import MTLMM
 
 
 def generate_data(N, P, K, S):
@@ -37,7 +37,6 @@ def generate_data(N, P, K, S):
     Y = FB + Yg + Yn
 
     return Y, F, G, B0, Cg0, Cn0
-
 
 
 if __name__=='__main__':
