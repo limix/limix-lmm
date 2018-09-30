@@ -179,11 +179,11 @@ class LMMCore():
              [-0.413   0.0278  0.1946 -0.1199]
              [ 0.0268 -0.0317 -0.1059  0.1414]]
     """
-    def __init__(self, y, F, cov=None):
+    def __init__(self, y, F, Ki_dot=None):
         if F is None:   F = sp.ones((y.shape[0],1))
         self.y = y
         self.F = F
-        self.cov = cov
+        self.Ki_dot = Ki_dot 
         self.df = y.shape[0]-F.shape[1]
         self._fit_null()
 

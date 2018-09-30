@@ -26,14 +26,14 @@ def setup_package():
     tests_require = ['pytest']
 
     metadata = dict(
-        name='genolmm',
+        name='limix-lmm',
         version='0.0.1',
         maintainer="Francesco Paolo Casale",
         maintainer_email="casale@ebi.ac.uk",
         license="Apache License 2.0'",
-        #description="Linear mixed model",
+        description="Linear mixed model for GWAS",
         long_description=long_description,
-        url='https://github.com/limix/genolmm',
+        url='https://github.com/limix/limix-lmm',
         packages=find_packages(),
         zip_safe=False,
         install_requires=install_requires,
