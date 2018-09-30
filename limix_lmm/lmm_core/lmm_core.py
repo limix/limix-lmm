@@ -64,11 +64,15 @@ class LMMCore():
 
     where :math:`\odot` is the element-wise product.
 
-    :math:`\mathbf{K}_{\boldsymbol{\theta}_0}` is specified
-    by a :class:`limix_core.covar`.
-    Within the function only :math:`\sigma^2` is learnt.
+    Importantly, :math:`\mathbf{K}_{\boldsymbol{\theta}_0}`
+    is not re-estimated under the laternative model,
+    i.e. only :math:`\sigma^2` is learnt.
     The covariance parameters :math:`\boldsymbol{\theta}_0`
-    should then be set (or learnt) externally.
+    need to be learnt using another module, e.g. limix-core.
+    Note that as a consequence of this,
+    such an implementation of single-variant analysis does not require the
+    specification of the whole covariance but just of a method that
+    specifies the product of its inverse by a vector.
 
     The test :math:`\boldsymbol{\beta}\neq{0}` is done
     in bocks of ``step`` variants,
@@ -80,8 +84,9 @@ class LMMCore():
         phenotype vector
     F : (`N`, L) ndarray
         fixed effect design for covariates.
-    cov : :class:`limix_core.covar`
-        Covariance matrix of the random effect.
+    Ki_dot : function
+        method that takes an array and returns the dot product of
+        the inverse of the covariance and the input array.
 
 
     Examples
@@ -93,7 +98,7 @@ class LMMCore():
 
             >>> from numpy.random import RandomState
             >>> import scipy as sp
-            >>> from struct_lmm import LMMCore
+            >>> from limix_lmm.lmm_core import LMMCore
             >>> from limix_core.gp import GP2KronSumLR
             >>> from limix_core.covar import FreeFormCov
             >>> random = RandomState(1)
@@ -115,7 +120,7 @@ class LMMCore():
             >>> gp.covar.Cn.setCovariance(0.5*sp.ones((1,1)))
             >>> info_null = gp.optimize(verbose=False)
             >>>
-            >>> lmm = LMMCore(y, F, gp.covar)
+            >>> lmm = LMMCore(y, F, gp.covar.solve)
             >>> lmm.process(G, Inter)
             >>> pv = lmm.getPv()
             >>> beta = lmm.getBetaSNP()
@@ -157,7 +162,7 @@ class LMMCore():
 
         .. doctest::
 
-            >>> lmm = LMMCore(y, F, gp.covar)
+            >>> lmm = LMMCore(y, F, gp.covar.solve)
             >>> lmm.process(G, Inter=Inter, step=4)
             >>> pv = lmm.getPv()
             >>> beta = lmm.getBetaSNP()
@@ -183,18 +188,18 @@ class LMMCore():
         if F is None:   F = sp.ones((y.shape[0],1))
         self.y = y
         self.F = F
-        self.Ki_dot = Ki_dot 
+        self.Ki_dot = Ki_dot
         self.df = y.shape[0]-F.shape[1]
         self._fit_null()
 
     def _fit_null(self):
         """ Internal functon. Fits the null model """
-        if self.cov==None:
+        if self.Ki_dot==None:
             self.Kiy = self.y
             self.KiF = self.F
         else:
-            self.Kiy = self.cov.solve(self.y)
-            self.KiF = self.cov.solve(self.F)
+            self.Kiy = self.Ki_dot(self.y)
+            self.KiF = self.Ki_dot(self.F)
         self.FKiy = sp.dot(self.F.T, self.Kiy)
         self.FKiF = sp.dot(self.F.T, self.KiF)
         self.yKiy = sp.dot(self.y[:,0], self.Kiy[:,0])
@@ -240,8 +245,8 @@ class LMMCore():
                     X = hatodot(Inter, G[:,idx1:idx2])
             else:
                 X = G[:,idx1:idx2]
-            if self.cov==None:  KiX = X
-            else:               KiX = self.cov.solve(X)
+            if self.Ki_dot==None:  KiX = X
+            else:                  KiX = self.Ki_dot(X)
             F1KiF1[k:,:k] = sp.dot(X.T,self.KiF)
             F1KiF1[:k,k:] = F1KiF1[k:,:k].T
             F1KiF1[k:,k:] = sp.dot(X.T, KiX)
@@ -256,6 +261,11 @@ class LMMCore():
         t1 = time.time()
         if verbose:
             print('Tested for %d variants in %.2f s' % (G.shape[1],t1-t0))
+
+        pv = self.getPv()
+        beta = self.getBetaSNP()
+
+        return pv, beta
 
     def getPv(self):
         """

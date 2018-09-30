@@ -6,10 +6,13 @@ import pandas as pd
 import scipy as sp
 from optparse import OptionParser
 from limix_core.util.preprocess import gaussianize
-from struct_lmm import run_structlmm
-from struct_lmm.utils.sugar_utils import norm_env_matrix
+from limix_core.gp import GP2KronSumLR
+from limix_core.covar import FreeFormCov
+from limix_lmm.lmm_core import LMM
 from pandas_plink import read_plink
+import limix_core as lxc
 import geno_sugar as gs
+from sklearn.preprocessing import Imputer
 
 
 if __name__=='__main__':
@@ -27,18 +30,44 @@ if __name__=='__main__':
     dfp = pd.read_csv(phenofile, index_col=0)
     pheno = gaussianize(dfp.loc['gene1'].values[:, None])
 
-    # load environment file and normalize
-    envfile = 'data_structlmm/env.txt'
-    E = sp.loadtxt(envfile)
-    E = norm_env_matrix(E)
-
     # mean as fixed effect
-    covs = sp.ones((E.shape[0], 1))
+    covs = sp.ones((pheno.shape[0], 1))
 
-    # run analysis with struct lmm
-    res = run_structlmm(G, bim, pheno, E, covs=covs, batch_size=100, unique_variants=True)
+    # fit null model
+    wfile = 'data_structlmm/env.txt'
+    W = sp.loadtxt(wfile); W = W[:, W.std(0)>0]
+    W-= W.mean(0); W/= W.std(0); W/= sp.sqrt(W.shape[1])
+
+    # larn a covariance on the null model
+    gp = GP2KronSumLR(Y=pheno, Cn=FreeFormCov(1), G=W, F=covs, A=sp.ones((1,1)))
+    gp.covar.Cr.setCovariance(0.5*sp.ones((1,1)))
+    gp.covar.Cn.setCovariance(0.5*sp.ones((1,1)))
+    info_opt = gp.optimize(verbose=False)
+
+    # define lmm
+    lmm = LMM(pheno, covs, gp.covar.solve)
+
+    # define geno preprocessing function
+    impute = gs.preprocess.impute(Imputer(missing_values=np.nan, strategy='mean', axis=1))
+    standardize = gs.preprocess.standardize()
+    preprocess = gs.preprocess.compose([impute, standardize])
+
+    # loop on geno
+    res = []
+    n_analyzed = 0
+    queue = gs.GenoQueue(G, bim, batch_size=200, preprocess=preprocess)
+    for _G, _bim in queue:
+        pv, beta = lmm.process(_G.T)
+        _bim = _bim.assign(lmm_pv=pd.Series(pv, index=_bim.index))
+        _bim = _bim.assign(lmm_beta=pd.Series(beta, index=_bim.index))
+        res.append(_bim)
+        n_analyzed += _G.shape[0]
+        print('.. analysed %d/%d variants' % (n_analyzed, G.shape[0]))
+
+    res = pd.concat(res)
+    res.reset_index(inplace=True, drop=True)
 
     # export
     print('Export')
     if not os.path.exists('out'): os.makedirs('out')
-    res.to_csv('out/res_structlmm.csv', index=False)
+    res.to_csv('out/res_lmm.csv', index=False)

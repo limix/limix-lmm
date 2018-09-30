@@ -21,8 +21,6 @@ def plot_manhattan(plt, df, pv_thr=None, colors=None, offset=None, callback=None
 
     Examples
     --------
-    This example shows how to run StructLMM.
-    Let's start with the joint test:
 
     .. doctest::
 
@@ -38,8 +36,6 @@ def plot_manhattan(plt, df, pv_thr=None, colors=None, offset=None, callback=None
         >>> pv = sp.rand(n_chroms * n_snps_per_chrom)
         >>> df = pd.DataFrame({'chrom': chrom, 'pos': pos, 'pv': pv})
         >>>
-        >>> import pdb
-        >>> pdb.set_trace()
         >>> ax = plt.subplot(111)
         >>> plot_manhattan(ax, df)
     """

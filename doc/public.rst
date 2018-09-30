@@ -4,41 +4,28 @@
 Public Interface
 ****************
 
-- :ref:`lmm_class_ref`
+- :ref:`lmmcore_ref`
 
-  - :func:`.run_struct_lmm`
-  - :class:`.StructLMM`
+  - :class:`.lmm_core.LMMCore`
+  - :class:`.lmm_core.LMM`
 
-- :ref:`interpretation_ref`
+- :ref:`plot_ref`
 
-- :ref:`utils_ref`
+  - :func:`.plot.plot_manhattan`
+  - :func:`.plot.qqplot`
 
-  - :func:`.fdr_bh`
-  - :func:`.import_one_pheno_from_csv`
-  - :func:`.norm_env_matrix`
-  - :func:`.make_out_dir`
-  - :class:`.CompQuadFormLiu`
-  - :class:`.CompQuadFormDavies`
-  - :class:`.CompQuadFormLiuMod`
-  - :class:`.CompQuadFormDaviesSkat`
 
-.. _lmm_class_ref:
+.. _lmmcore_ref:
 
-StructLMM class
-^^^^^^^^^^^^^^^
-.. automodule:: struct_lmm.lmm
+LMM Core Classes
+^^^^^^^^^^^^^^^^
+.. automodule:: limix_lmm.lmm_core
   :members:
 
-.. _interpretation_ref:
 
-Tools for interpretation
-^^^^^^^^^^^^^^^^^^^^^^^^
-.. automodule:: struct_lmm.interpretation
-  :members:
+.. _plot_ref:
 
-.. _utils_ref:
-
-Utils
-^^^^^
-.. automodule:: struct_lmm.utils
+Plot functions
+^^^^^^^^^^^^^^
+.. automodule:: limix_lmm.plot 
   :members:

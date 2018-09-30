@@ -26,8 +26,9 @@ class LMM(LMMCore):
         phenotype vector
     F : (`N`, L) ndarray
         fixed effect design for covariates.
-    cov : :class:`limix_core.covar`
-        Covariance matrix of the random effect
+    Ki_dot : function
+        method that takes an array and returns the dot product of
+        the inverse of the covariance and the input array.
 
     Examples
     --------
@@ -59,7 +60,7 @@ class LMM(LMMCore):
         >>> gp.covar.Cn.setCovariance(0.5*sp.ones((1,1)))
         >>> info_opt = gp.optimize(verbose=False)
         >>>
-        >>> lmm = LMM(y, F, gp.covar)
+        >>> lmm = LMM(y, F, gp.covar.solve)
         >>> lmm.process(G)
         >>> pv = lmm.getPv()
         >>> beta = lmm.getBetaSNP()
@@ -76,22 +77,22 @@ class LMM(LMMCore):
         [ 0.0442  1.9108  0.0106  1.1721]
     """
 
-    def __init__(self, y, F, cov=None):
+    def __init__(self, y, F, Ki_dot=None):
         if F is None:   F = sp.ones((y.shape[0],1))
         self.y = y
         self.F = F
-        self.cov = cov
+        self.Ki_dot = Ki_dot
         self.df = y.shape[0]-F.shape[1]
         self._fit_null()
 
     def _fit_null(self):
         """ Internal functon. Fits the null model """
-        if self.cov==None:
+        if self.Ki_dot==None:
             self.Kiy = self.y
             self.KiF = self.F
         else:
-            self.Kiy = self.cov.solve(self.y)
-            self.KiF = self.cov.solve(self.F)
+            self.Kiy = self.Ki_dot(self.y)
+            self.KiF = self.Ki_dot(self.F)
         self.FKiy = sp.dot(self.F.T, self.Kiy)
         self.FKiF = sp.dot(self.F.T, self.KiF)
         self.yKiy = sp.dot(self.y[:,0], self.Kiy[:,0])
@@ -110,11 +111,18 @@ class LMM(LMMCore):
             genotype vector for `N` individuals and `S` variants.
         verbose : bool
             verbose flag.
+
+        Returns
+        -------
+        pv : ndarray
+            P values
+        beta : ndarray
+            variant effect szies
         """
         t0 = time.time()
         # precompute some stuff
-        if self.cov==None:  KiG = G
-        else:               KiG = self.cov.solve(G)
+        if self.Ki_dot==None:  KiG = G
+        else:                  KiG = self.Ki_dot(G)
         GKiy = sp.dot(G.T, self.Kiy[:,0])
         GKiG = sp.einsum('ij,ij->j', G, KiG)
         FKiG = sp.dot(self.F.T, KiG)
@@ -141,3 +149,8 @@ class LMM(LMMCore):
         t1 = time.time()
         if verbose:
             print('Tested for %d variants in %.2f s' % (G.shape[1],t1-t0))
+
+        pv = self.getPv()
+        beta = self.getBetaSNP()
+
+        return pv, beta
