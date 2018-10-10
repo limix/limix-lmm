@@ -1,22 +1,24 @@
 import scipy as sp
 import scipy.stats as st
 import scipy.linalg as la
-import pdb
 import time
 
-def calc_Ai_beta_s2(yKiy,FKiF,FKiy,df):
+
+def calc_Ai_beta_s2(yKiy, FKiF, FKiy, df):
     Ai = la.pinv(FKiF)
-    beta = sp.dot(Ai,FKiy)
-    s2 = (yKiy-sp.dot(FKiy[:,0],beta[:,0]))/df
-    return Ai,beta,s2
+    beta = sp.dot(Ai, FKiy)
+    s2 = (yKiy - sp.dot(FKiy[:, 0], beta[:, 0])) / df
+    return Ai, beta, s2
+
 
 def hatodot(A, B):
     """ should be implemented in C """
     A1 = sp.kron(A, sp.ones((1, B.shape[1])))
     B1 = sp.kron(sp.ones((1, A.shape[1])), B)
-    return A1*B1
+    return A1 * B1
 
-class LMMCore():
+
+class LMMCore:
     r"""
     Core LMM for interaction and association testing.
 
@@ -184,17 +186,19 @@ class LMMCore():
              [-0.413   0.0278  0.1946 -0.1199]
              [ 0.0268 -0.0317 -0.1059  0.1414]]
     """
+
     def __init__(self, y, F, Ki_dot=None):
-        if F is None:   F = sp.ones((y.shape[0],1))
+        if F is None:
+            F = sp.ones((y.shape[0], 1))
         self.y = y
         self.F = F
         self.Ki_dot = Ki_dot
-        self.df = y.shape[0]-F.shape[1]
+        self.df = y.shape[0] - F.shape[1]
         self._fit_null()
 
     def _fit_null(self):
         """ Internal functon. Fits the null model """
-        if self.Ki_dot==None:
+        if self.Ki_dot is None:
             self.Kiy = self.y
             self.KiF = self.F
         else:
@@ -202,9 +206,11 @@ class LMMCore():
             self.KiF = self.Ki_dot(self.F)
         self.FKiy = sp.dot(self.F.T, self.Kiy)
         self.FKiF = sp.dot(self.F.T, self.KiF)
-        self.yKiy = sp.dot(self.y[:,0], self.Kiy[:,0])
+        self.yKiy = sp.dot(self.y[:, 0], self.Kiy[:, 0])
         # calc beta_F0 and s20
-        self.A0i, self.beta_F0, self.s20 = calc_Ai_beta_s2(self.yKiy,self.FKiF,self.FKiy,self.df)
+        self.A0i, self.beta_F0, self.s20 = calc_Ai_beta_s2(
+            self.yKiy, self.FKiF, self.FKiy, self.df
+        )
 
     def process(self, G, Inter=None, step=1, verbose=False):
         r"""
@@ -225,42 +231,46 @@ class LMMCore():
         """
         t0 = time.time()
         ntests = int(G.shape[1] / step)
-        if Inter is None: mi = 1
-        else:             mi = Inter.shape[1]
+        if Inter is None:
+            mi = 1
+        else:
+            mi = Inter.shape[1]
         k = self.F.shape[1]
         m = mi * step
-        F1KiF1 = sp.zeros((k+m, k+m))
-        F1KiF1[:k,:k] = self.FKiF
-        F1Kiy = sp.zeros((k+m,1))
-        F1Kiy[:k,0] = self.FKiy[:,0]
+        F1KiF1 = sp.zeros((k + m, k + m))
+        F1KiF1[:k, :k] = self.FKiF
+        F1Kiy = sp.zeros((k + m, 1))
+        F1Kiy[:k, 0] = self.FKiy[:, 0]
         s2 = sp.zeros(ntests)
         self.beta_g = sp.zeros([m, ntests])
         for s in range(ntests):
             idx1 = step * s
             idx2 = step * (s + 1)
             if Inter is not None:
-                if step==1:
-                    X = Inter * G[:,idx1:idx2]
+                if step == 1:
+                    X = Inter * G[:, idx1:idx2]
                 else:
-                    X = hatodot(Inter, G[:,idx1:idx2])
+                    X = hatodot(Inter, G[:, idx1:idx2])
             else:
-                X = G[:,idx1:idx2]
-            if self.Ki_dot==None:  KiX = X
-            else:                  KiX = self.Ki_dot(X)
-            F1KiF1[k:,:k] = sp.dot(X.T,self.KiF)
-            F1KiF1[:k,k:] = F1KiF1[k:,:k].T
-            F1KiF1[k:,k:] = sp.dot(X.T, KiX)
-            F1Kiy[k:,0] = sp.dot(X.T,self.Kiy[:,0])
-            #this can be sped up by using block matrix inversion, etc
-            _,beta,s2[s] = calc_Ai_beta_s2(self.yKiy,F1KiF1,F1Kiy,self.df)
-            self.beta_g[:,s] = beta[k:,0]
-        #dlml and pvs
-        self.lrt = -self.df*sp.log(s2/self.s20)
+                X = G[:, idx1:idx2]
+            if self.Ki_dot is None:
+                KiX = X
+            else:
+                KiX = self.Ki_dot(X)
+            F1KiF1[k:, :k] = sp.dot(X.T, self.KiF)
+            F1KiF1[:k, k:] = F1KiF1[k:, :k].T
+            F1KiF1[k:, k:] = sp.dot(X.T, KiX)
+            F1Kiy[k:, 0] = sp.dot(X.T, self.Kiy[:, 0])
+            # this can be sped up by using block matrix inversion, etc
+            _, beta, s2[s] = calc_Ai_beta_s2(self.yKiy, F1KiF1, F1Kiy, self.df)
+            self.beta_g[:, s] = beta[k:, 0]
+        # dlml and pvs
+        self.lrt = -self.df * sp.log(s2 / self.s20)
         self.pv = st.chi2(m).sf(self.lrt)
 
         t1 = time.time()
         if verbose:
-            print('Tested for %d variants in %.2f s' % (G.shape[1],t1-t0))
+            print("Tested for %d variants in %.2f s" % (G.shape[1], t1 - t0))
 
         pv = self.getPv()
         beta = self.getBetaSNP()

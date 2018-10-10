@@ -1,6 +1,7 @@
 import pylab as pl
 import scipy as sp
 
+
 def plot_manhattan(plt, df, pv_thr=None, colors=None, offset=None, callback=None):
     """
     Utility function to make manhattan plot
@@ -40,19 +41,22 @@ def plot_manhattan(plt, df, pv_thr=None, colors=None, offset=None, callback=None
         >>> plot_manhattan(ax, df)
     """
     if colors is None:
-        colors = ['k', 'Gray']
+        colors = ["k", "Gray"]
     if offset is None:
         offset = 0.2
-    dx = offset * df['pos'].values.max()
+    dx = offset * df["pos"].values.max()
     _x = 0
     xticks = []
-    for chrom_i in sp.unique(df['chrom'].values):
-        _df = df[df['chrom']==chrom_i]
-        if chrom_i%2==0:    color = colors[0]
-        else:               color = colors[1]
-        pl.plot(_df['pos'] + _x, -sp.log10(_df['pv']), '.', color=color)
-        if callback is not None: callback(_df)
-        xticks.append(_x + 0.5 * _df['pos'].values.max())
-        _x += _df['pos'].values.max() + dx
+    for chrom_i in sp.unique(df["chrom"].values):
+        _df = df[df["chrom"] == chrom_i]
+        if chrom_i % 2 == 0:
+            color = colors[0]
+        else:
+            color = colors[1]
+        pl.plot(_df["pos"] + _x, -sp.log10(_df["pv"]), ".", color=color)
+        if callback is not None:
+            callback(_df)
+        xticks.append(_x + 0.5 * _df["pos"].values.max())
+        _x += _df["pos"].values.max() + dx
     plt.set_xticks(xticks)
-    plt.set_xticklabels(sp.unique(df['chrom'].values))
+    plt.set_xticklabels(sp.unique(df["chrom"].values))

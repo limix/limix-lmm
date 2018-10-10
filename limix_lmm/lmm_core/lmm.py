@@ -2,8 +2,8 @@ import scipy as sp
 import scipy.stats as st
 import scipy.linalg as la
 from .lmm_core import LMMCore
-import pdb
 import time
+
 
 class LMM(LMMCore):
     r"""
@@ -78,16 +78,17 @@ class LMM(LMMCore):
     """
 
     def __init__(self, y, F, Ki_dot=None):
-        if F is None:   F = sp.ones((y.shape[0],1))
+        if F is None:
+            F = sp.ones((y.shape[0], 1))
         self.y = y
         self.F = F
         self.Ki_dot = Ki_dot
-        self.df = y.shape[0]-F.shape[1]
+        self.df = y.shape[0] - F.shape[1]
         self._fit_null()
 
     def _fit_null(self):
         """ Internal functon. Fits the null model """
-        if self.Ki_dot==None:
+        if self.Ki_dot is None:
             self.Kiy = self.y
             self.KiF = self.F
         else:
@@ -95,11 +96,11 @@ class LMM(LMMCore):
             self.KiF = self.Ki_dot(self.F)
         self.FKiy = sp.dot(self.F.T, self.Kiy)
         self.FKiF = sp.dot(self.F.T, self.KiF)
-        self.yKiy = sp.dot(self.y[:,0], self.Kiy[:,0])
+        self.yKiy = sp.dot(self.y[:, 0], self.Kiy[:, 0])
         # calc beta_F0 and s20
         self.A0i = la.inv(self.FKiF)
-        self.beta_F0 = sp.dot(self.A0i,self.FKiy)
-        self.s20 = (self.yKiy-sp.dot(self.FKiy[:,0],self.beta_F0[:,0]))/self.df
+        self.beta_F0 = sp.dot(self.A0i, self.FKiy)
+        self.s20 = (self.yKiy - sp.dot(self.FKiy[:, 0], self.beta_F0[:, 0])) / self.df
 
     def process(self, G, verbose=False):
         r"""
@@ -121,34 +122,36 @@ class LMM(LMMCore):
         """
         t0 = time.time()
         # precompute some stuff
-        if self.Ki_dot==None:  KiG = G
-        else:                  KiG = self.Ki_dot(G)
-        GKiy = sp.dot(G.T, self.Kiy[:,0])
-        GKiG = sp.einsum('ij,ij->j', G, KiG)
+        if self.Ki_dot is None:
+            KiG = G
+        else:
+            KiG = self.Ki_dot(G)
+        GKiy = sp.dot(G.T, self.Kiy[:, 0])
+        GKiG = sp.einsum("ij,ij->j", G, KiG)
         FKiG = sp.dot(self.F.T, KiG)
 
         # Let us denote the inverse of Areml as
         # Ainv = [[A0i + m mt / n, m], [mT, n]]
         A0iFKiG = sp.dot(self.A0i, FKiG)
-        n = 1./(GKiG-sp.einsum('ij,ij->j', FKiG, A0iFKiG))
-        M = -n*A0iFKiG
-        self.beta_F = self.beta_F0+M*sp.dot(M.T,self.FKiy[:,0])/n
-        self.beta_F+= M*GKiy
-        self.beta_g = sp.einsum('is,i->s',M,self.FKiy[:,0])
-        self.beta_g+= n*GKiy
+        n = 1.0 / (GKiG - sp.einsum("ij,ij->j", FKiG, A0iFKiG))
+        M = -n * A0iFKiG
+        self.beta_F = self.beta_F0 + M * sp.dot(M.T, self.FKiy[:, 0]) / n
+        self.beta_F += M * GKiy
+        self.beta_g = sp.einsum("is,i->s", M, self.FKiy[:, 0])
+        self.beta_g += n * GKiy
 
         # sigma
-        s2 = self.yKiy-sp.einsum('i,is->s',self.FKiy[:,0],self.beta_F)
-        s2-= GKiy*self.beta_g
-        s2/= self.df
+        s2 = self.yKiy - sp.einsum("i,is->s", self.FKiy[:, 0], self.beta_F)
+        s2 -= GKiy * self.beta_g
+        s2 /= self.df
 
-        #dlml and pvs
-        self.lrt = -self.df*sp.log(s2/self.s20)
+        # dlml and pvs
+        self.lrt = -self.df * sp.log(s2 / self.s20)
         self.pv = st.chi2(1).sf(self.lrt)
 
         t1 = time.time()
         if verbose:
-            print('Tested for %d variants in %.2f s' % (G.shape[1],t1-t0))
+            print("Tested for %d variants in %.2f s" % (G.shape[1], t1 - t0))
 
         pv = self.getPv()
         beta = self.getBetaSNP()
