@@ -6,7 +6,14 @@ matrix:
         - 2.7
         - 3.6
     - os: osx
-      python: 3.6
+      language: generic
+      before_install:
+        - brew update
+        - brew outdated python || brew upgrade python
+        - brew unlink python && brew link python
+        - export PATH="/usr/local/opt/python/libexec/bin:$PATH"
+        - hash -r
+        - pip install --upgrade pip setuptools wheel numpy
 env:
 - PKG_NAME=limix_lmm
 script:
