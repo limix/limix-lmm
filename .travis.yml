@@ -1,19 +1,7 @@
 language: python
-matrix:
-  include:
-    - os: linux
-      python:
-        - 2.7
-        - 3.6
-    - os: osx
-      language: generic
-      before_install:
-        - brew update
-        - brew upgrade python
-        - brew unlink python && brew link python
-        - export PATH="/usr/local/opt/python/libexec/bin:$PATH"
-        - hash -r
-        - pip install --upgrade pip setuptools wheel numpy
+python:
+- 2.7
+- 3.6
 env:
 - PKG_NAME=limix_lmm
 script:
