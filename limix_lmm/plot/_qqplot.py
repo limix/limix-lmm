@@ -1,17 +1,18 @@
 import pylab as pl
 import scipy as sp
-import pdb
 
 
-def qqplot(plt,
-            pv,
-            color='k',
-            plot_method=None,
-            line=False,
-            pv_thr=1e-2,
-            plot_xyline=False,
-            xy_labels=False,
-            xyline_color='r'):
+def qqplot(
+    plt,
+    pv,
+    color="k",
+    plot_method=None,
+    line=False,
+    pv_thr=1e-2,
+    plot_xyline=False,
+    xy_labels=False,
+    xyline_color="r",
+):
     """
     Utility function to make manhattan plot
 
@@ -49,13 +50,13 @@ def qqplot(plt,
         >>> qqplot(ax, pv2, color='C1')
         >>> qqplot(ax, pv3, color='C2', plot_xyline=True, xy_labels=True)
     """
-    pv1 = pv[pv<pv_thr]
+    pv1 = pv[pv < pv_thr]
     pvo = -sp.log10(sp.sort(pv1))
-    pvt = -sp.log10(sp.linspace(0, pv_thr, pv1.shape[0]+2)[1:-1])
+    pvt = -sp.log10(sp.linspace(0, pv_thr, pv1.shape[0] + 2)[1:-1])
     if plot_method is not None:
         plot_method(pvt, pvo)
     else:
-        pl.plot(pvt, pvo, marker='.k', color=color)
+        pl.plot(pvt, pvo, marker=".k", color=color)
 
     if plot_xyline:
         xlim1, xlim2 = plt.get_xlim()
@@ -66,5 +67,5 @@ def qqplot(plt,
         plt.set_xlim(xlim1, xlim2)
         plt.set_ylim(ylim1, ylim2)
     if xy_labels:
-        pl.xlabel('Expected P values')
-        pl.ylabel('Observed P values')
+        pl.xlabel("Expected P values")
+        pl.ylabel("Observed P values")

@@ -1,9 +1,5 @@
 import scipy as sp
-import scipy.stats as st
-import scipy.linalg as la
-import pdb
-import time
-from .lmm_core import LMMCore, hatodot
+from .lmm_core import LMMCore
 
 
 class MTLMM(LMMCore):
@@ -50,16 +46,20 @@ class MTLMM(LMMCore):
         method that takes an array and returns the dot product of
         the inverse of the covariance and the input array.
     """
+
     def __init__(self, Y, F=None, A=None, Asnp=None, Ki_dot=None):
-        if F is None:       F = sp.ones((Y.shape[0],1))
-        if A is None:       A = sp.eye(Y.shape[1])
-        if Asnp is None:    Asnp = sp.eye(Y.shape[1])
+        if F is None:
+            F = sp.ones((Y.shape[0], 1))
+        if A is None:
+            A = sp.eye(Y.shape[1])
+        if Asnp is None:
+            Asnp = sp.eye(Y.shape[1])
 
         # store useful stuff
         self.Asnp = Asnp
 
         # convert to a univariate problem
-        y = sp.reshape(Y, (Y.size, 1), order='F')
+        y = sp.reshape(Y, (Y.size, 1), order="F")
         W = sp.kron(A, F)
         super(MTLMM, self).__init__(y, W, Ki_dot=Ki_dot)
         self._fit_null()
@@ -83,5 +83,7 @@ class MTLMM(LMMCore):
         """
         Aext = sp.kron(self.Asnp, sp.ones((G.shape[0], 1)))
         Gext = sp.kron(sp.ones((self.Asnp.shape[0], 1)), G)
-        Wext = sp.einsum('ip,in->inp', Aext, Gext).reshape(Aext.shape[0], -1)
-        return super(MTLMM, self).process(Wext, step=self.Asnp.shape[0], verbose=verbose)
+        Wext = sp.einsum("ip,in->inp", Aext, Gext).reshape(Aext.shape[0], -1)
+        return super(MTLMM, self).process(
+            Wext, step=self.Asnp.shape[0], verbose=verbose
+        )
