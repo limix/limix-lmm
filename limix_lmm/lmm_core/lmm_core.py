@@ -1,10 +1,10 @@
-import scipy as sp
-import scipy.stats as st
-import scipy.linalg as la
-import time
+from time import time
 
 
 def calc_Ai_beta_s2(yKiy, FKiF, FKiy, df):
+    import scipy as sp
+    import scipy.linalg as la
+
     Ai = la.pinv(FKiF)
     beta = sp.dot(Ai, FKiy)
     s2 = (yKiy - sp.dot(FKiy[:, 0], beta[:, 0])) / df
@@ -13,6 +13,8 @@ def calc_Ai_beta_s2(yKiy, FKiF, FKiy, df):
 
 def hatodot(A, B):
     """ should be implemented in C """
+    import scipy as sp
+
     A1 = sp.kron(A, sp.ones((1, B.shape[1])))
     B1 = sp.kron(sp.ones((1, A.shape[1])), B)
     return A1 * B1
@@ -188,6 +190,8 @@ class LMMCore:
     """
 
     def __init__(self, y, F, Ki_dot=None):
+        import scipy as sp
+
         if F is None:
             F = sp.ones((y.shape[0], 1))
         self.y = y
@@ -198,6 +202,8 @@ class LMMCore:
 
     def _fit_null(self):
         """ Internal functon. Fits the null model """
+        import scipy as sp
+
         if self.Ki_dot is None:
             self.Kiy = self.y
             self.KiF = self.F
@@ -229,7 +235,10 @@ class LMMCore:
         verbose : bool
             verbose flag.
         """
-        t0 = time.time()
+        import scipy as sp
+        import scipy.stats as st
+
+        t0 = time()
         ntests = int(G.shape[1] / step)
         if Inter is None:
             mi = 1
@@ -268,7 +277,7 @@ class LMMCore:
         self.lrt = -self.df * sp.log(s2 / self.s20)
         self.pv = st.chi2(m).sf(self.lrt)
 
-        t1 = time.time()
+        t1 = time()
         if verbose:
             print("Tested for %d variants in %.2f s" % (G.shape[1], t1 - t0))
 
@@ -321,6 +330,9 @@ class LMMCore:
         -------
         beta_ste : ndarray
         """
+        import scipy as sp
+        import scipy.stats as st
+
         beta = self.getBetaSNP()
         pv = self.getPv()
         z = sp.sign(beta) * sp.sqrt(st.chi2(1).isf(pv))

@@ -1,4 +1,3 @@
-import scipy as sp
 from .lmm_core import LMMCore
 
 
@@ -48,6 +47,8 @@ class MTLMM(LMMCore):
     """
 
     def __init__(self, Y, F=None, A=None, Asnp=None, Ki_dot=None):
+        import scipy as sp
+
         if F is None:
             F = sp.ones((Y.shape[0], 1))
         if A is None:
@@ -81,6 +82,8 @@ class MTLMM(LMMCore):
         verbose : bool
             verbose flag.
         """
+        import scipy as sp
+
         Aext = sp.kron(self.Asnp, sp.ones((G.shape[0], 1)))
         Gext = sp.kron(sp.ones((self.Asnp.shape[0], 1)), G)
         Wext = sp.einsum("ip,in->inp", Aext, Gext).reshape(Aext.shape[0], -1)

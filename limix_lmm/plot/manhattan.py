@@ -1,7 +1,3 @@
-from matplotlib import pyplot as plt
-import scipy as sp
-
-
 def plot_manhattan(ax, df, pv_thr=None, colors=None, offset=None, callback=None):
     """
     Utility function to make manhattan plot
@@ -39,6 +35,9 @@ def plot_manhattan(ax, df, pv_thr=None, colors=None, offset=None, callback=None)
         >>> ax = plt.subplot(111)
         >>> plot_manhattan(ax, df)
     """
+    from matplotlib import pyplot as plt
+    import scipy as sp
+
     if colors is None:
         colors = ["k", "Gray"]
     if offset is None:
