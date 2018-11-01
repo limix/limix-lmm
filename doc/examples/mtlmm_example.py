@@ -1,15 +1,9 @@
-import scipy as sp
-import scipy.linalg as la
-from limix_core.gp import GP2KronSum
-from limix_core.covar import FreeFormCov
-from limix_lmm.lmm_core import MTLMM
-
-
 def generate_data(N, P, K, S):
+    import scipy as sp
 
     # fixed eff
     F = sp.randn(N, K)
-    B0 = 2 * (sp.arange(0, K*P) % 2) - 1.
+    B0 = 2 * (sp.arange(0, K * P) % 2) - 1.0
     B0 = sp.reshape(B0, (K, P))
     FB = sp.dot(F, B0)
 
@@ -17,21 +11,23 @@ def generate_data(N, P, K, S):
     h2 = sp.linspace(0.1, 0.5, P)
 
     # generate data
-    G = 1. * (sp.rand(N, S)<0.2)
-    G-= G.mean(0); G/= G.std(0); G/= sp.sqrt(G.shape[1])
+    G = 1.0 * (sp.rand(N, S) < 0.2)
+    G -= G.mean(0)
+    G /= G.std(0)
+    G /= sp.sqrt(G.shape[1])
     Wg = sp.randn(P, P)
     Wn = sp.randn(P, P)
 
     B = sp.randn(G.shape[1], Wg.shape[1])
     Yg = G.dot(B).dot(Wg.T)
-    Yg-= Yg.mean(0)
-    Yg*= sp.sqrt(h2 / Yg.var(0))
+    Yg -= Yg.mean(0)
+    Yg *= sp.sqrt(h2 / Yg.var(0))
     Cg0 = sp.cov(Yg.T)
 
     B = sp.randn(G.shape[0], Wg.shape[1])
     Yn = B.dot(Wn.T)
-    Yn-= Yn.mean(0)
-    Yn*= sp.sqrt((1-h2) / Yn.var(0))
+    Yn -= Yn.mean(0)
+    Yn *= sp.sqrt((1 - h2) / Yn.var(0))
     Cn0 = sp.cov(Yn.T)
 
     Y = FB + Yg + Yn
@@ -39,7 +35,11 @@ def generate_data(N, P, K, S):
     return Y, F, G, B0, Cg0, Cn0
 
 
-if __name__=='__main__':
+if __name__ == "__main__":
+    import scipy.linalg as la
+    from limix_core.gp import GP2KronSum
+    from limix_core.covar import FreeFormCov
+    from limix_lmm.lmm_core import MTLMM
 
     N = 1000
     P = 4
@@ -49,8 +49,8 @@ if __name__=='__main__':
 
     # compute eigenvalue decomp of RRM
     R = sp.dot(G, G.T)
-    R/= R.diagonal().mean()
-    R+= 1e-4 * sp.eye(R.shape[0])
+    R /= R.diagonal().mean()
+    R += 1e-4 * sp.eye(R.shape[0])
     Sr, Ur = la.eigh(R)
 
     # fit null model

@@ -1,7 +1,3 @@
-from matplotlib import pyplot as plt
-import scipy as sp
-
-
 def qqplot(
     ax,
     pv,
@@ -39,7 +35,7 @@ def qqplot(
 
         >>> from limix_lmm.plot import qqplot
         >>> import scipy as sp
-        >>> from matplotlib import pyplot as plot
+        >>> from matplotlib import pyplot as plt
         >>>
         >>> pv1 = sp.rand(10000)
         >>> pv2 = sp.rand(10000)
@@ -50,6 +46,9 @@ def qqplot(
         >>> qqplot(ax, pv2, color='C1')
         >>> qqplot(ax, pv3, color='C2', plot_xyline=True, xy_labels=True)
     """
+    from matplotlib import pyplot as plt
+    import scipy as sp
+
     pv1 = pv[pv < pv_thr]
     pvo = -sp.log10(sp.sort(pv1))
     pvt = -sp.log10(sp.linspace(0, pv_thr, pv1.shape[0] + 2)[1:-1])

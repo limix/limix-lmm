@@ -1,8 +1,5 @@
-import scipy as sp
-import scipy.stats as st
-import scipy.linalg as la
 from .lmm_core import LMMCore
-import time
+from time import time
 
 
 class LMM(LMMCore):
@@ -78,6 +75,8 @@ class LMM(LMMCore):
     """
 
     def __init__(self, y, F, Ki_dot=None):
+        import scipy as sp
+
         if F is None:
             F = sp.ones((y.shape[0], 1))
         self.y = y
@@ -88,6 +87,9 @@ class LMM(LMMCore):
 
     def _fit_null(self):
         """ Internal functon. Fits the null model """
+        import scipy as sp
+        import scipy.linalg as la
+
         if self.Ki_dot is None:
             self.Kiy = self.y
             self.KiF = self.F
@@ -120,7 +122,10 @@ class LMM(LMMCore):
         beta : ndarray
             variant effect szies
         """
-        t0 = time.time()
+        import scipy as sp
+        import scipy.stats as st
+
+        t0 = time()
         # precompute some stuff
         if self.Ki_dot is None:
             KiG = G
@@ -149,6 +154,6 @@ class LMM(LMMCore):
         self.lrt = -self.df * sp.log(s2 / self.s20)
         self.pv = st.chi2(1).sf(self.lrt)
 
-        t1 = time.time()
+        t1 = time()
         if verbose:
             print("Tested for %d variants in %.2f s" % (G.shape[1], t1 - t0))

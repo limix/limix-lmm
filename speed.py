@@ -1,6 +1,6 @@
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
-from numpy import dot, eye, add, kron, concatenate, array
+from numpy import dot, eye, add, kron, concatenate, array, block
 
 from numpy_sugar.linalg import rsolve, economic_qs
 
@@ -14,26 +14,44 @@ np.set_printoptions(precision=20)
 def fit_beta(Y, A, M, C0, C1, QS, G):
     n, p = Y.shape
     betas = []
+    Di = [D.inv() for D in D(C0, C1, QS)]
+    QtY = [dot(Q.T, Y) for Q in QS[0] if Q.size > 0]
+    DiQtY = [Di.dot_vec(QtY) for Di, QtY in zip(Di, QtY)]
+
+    QtM = [dot(Q.T, M) for Q in QS[0] if Q.size > 0]
+
+    AQtM = [kron(A, QtM) for QtM in QtM]
+
+    DiAQtM = [Di.dot(AQtM) for Di, AQtM in zip(Di, AQtM)]
+
+    MQADAQM = [dot(i.T, j) for i, j in zip(DiAQtM, AQtM)]
+
+    MQADQY = [
+        dot(i.T, j).reshape((M.shape[1], -1), order="F") for i, j in zip(AQtM, DiQtY)
+    ]
+
     for i in range(G.shape[1]):
-        MG = concatenate([M, G[:, [i]]], axis=1)
+        AQtG = [kron(A, dot(Q.T, G[:, [i]])) for Q in QS[0]]
+        AQtMG = [combine(i, j, p) for i, j in zip(AQtM, AQtG)]
+        DiAQtG = [Di.dot(AQtG) for Di, AQtG in zip(Di, AQtG)]
 
-        Di = [D.inv() for D in D(C0, C1, QS)]
+        DiAQtMG = [combine(i, j, p) for i, j in zip(DiAQtM, DiAQtG)]
 
-        AQtM = [kron(A, dot(Q.T, MG)) for Q in QS[0]]
-        DiAQtM = [Di.dot(AQtM) for Di, AQtM in zip(Di, AQtM)]
-        QtY = [dot(Q.T, Y) for Q in QS[0] if Q.size > 0]
-        DiQtY = [Di.dot_vec(QtY) for Di, QtY in zip(Di, QtY)]
+        denominator = [dot(i.T, j) for i, j in zip(DiAQtMG, AQtMG)]
 
-        nominator = []
-
-        denominator = [dot(i.T, j) for i, j in zip(DiAQtM, AQtM)]
-        nominator = [dot(i.T, j) for i, j in zip(AQtM, DiQtY)]
+        GQADQY = [
+            dot(ii.T, j).reshape((G[:, [i]].shape[1], -1), order="F")
+            for ii, j in zip(AQtG, DiQtY)
+        ]
+        MQADQY = [i.reshape((M.shape[1], -1), order="F") for i in MQADQY]
+        nominator = [concatenate([i, j], axis=0) for i, j in zip(MQADQY, GQADQY)]
+        nominator = [i.reshape((-1, 1), order="F") for i in nominator]
 
         denominator = add.reduce(denominator)
         nominator = add.reduce(nominator)
 
         beta = rsolve(denominator, nominator)
-        beta.reshape((MG.shape[1], p), order="F")
+        beta.reshape((-1, p), order="F")
         betas.append(beta)
     return betas
 
@@ -59,7 +77,7 @@ def D(C0, C1, QS):
     return D
 
 
-def test_mt_scan():
+def main():
 
     random = RandomState(0)
     # samples
@@ -127,3 +145,46 @@ def test_mt_scan():
             ),
         ],
     )
+
+
+def slow():
+    random = RandomState(0)
+    # samples
+    n = 1000
+    # traits
+    p = 2
+    # covariates
+    d = 1
+    # SNPs
+    s = 1000
+
+    Y = random.randn(n, p)
+    A = random.randn(p, p)
+    A = dot(A, A.T)
+    M = random.randn(n, d)
+    K = random.randn(n, n)
+    K = (K - K.mean(0)) / K.std(0)
+    K = K.dot(K.T) + eye(n) + 1e-3
+    QS = economic_qs(K)
+
+    C0 = random.randn(p, p)
+    C0 = dot(C0, C0.T)
+    C1 = random.randn(p, p)
+    C1 = dot(C1, C1.T)
+    G = random.randn(n, s)
+
+    betas = fit_beta(Y, A, M, C0, C1, QS, G)
+
+
+def combine(A, B, p):
+    n = A.shape[0]
+    A = A.reshape((n, -1, p), order="F")
+    B = B.reshape((n, -1, p), order="F")
+    return concatenate([A, B], axis=1).reshape((n, -1), order="F")
+
+
+if __name__ == "__main__":
+    main()
+    slow()
+    # 2.37 s ± 28.9 ms per loop
+    # 1.57 s ± 32.2 ms per loop
