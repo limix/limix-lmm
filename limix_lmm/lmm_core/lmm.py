@@ -37,7 +37,7 @@ class LMM(LMMCore):
 
         >>> from numpy.random import RandomState
         >>> import scipy as sp
-        >>> from struct_lmm import LMM
+        >>> from limix_lmm import LMM
         >>> from limix_core.gp import GP2KronSumLR
         >>> from limix_core.covar import FreeFormCov
         >>> random = RandomState(1)
@@ -68,13 +68,13 @@ class LMM(LMMCore):
         >>> lrt = lmm.getLRT()
         >>>
         >>> print(pv[:4])
-        [ 0.8335  0.1669  0.9179  0.279 ]
+        [0.8335 0.1669 0.9179 0.279 ]
         >>> print(beta[:4])
         [-0.0479  0.3145  0.0235 -0.2465]
         >>> print(beta_ste[:4])
-        [ 0.2279  0.2275  0.2283  0.2276]
+        [0.2279 0.2275 0.2283 0.2276]
         >>> print(lrt[:4])
-        [ 0.0442  1.9108  0.0106  1.1721]
+        [0.0442 1.9108 0.0106 1.1721]
     """
 
     def __init__(self, y, F, Ki_dot=None):
@@ -152,8 +152,3 @@ class LMM(LMMCore):
         t1 = time.time()
         if verbose:
             print("Tested for %d variants in %.2f s" % (G.shape[1], t1 - t0))
-
-        pv = self.getPv()
-        beta = self.getBetaSNP()
-
-        return pv, beta
