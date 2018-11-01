@@ -1,9 +1,9 @@
-import pylab as pl
+from matplotlib import pyplot as plt
 import scipy as sp
 
 
 def qqplot(
-    plt,
+    ax,
     pv,
     color="k",
     plot_method=None,
@@ -18,7 +18,7 @@ def qqplot(
 
     Parameters
     ----------
-    plt : pyplot plot
+    ax : pyplot plot
         subplot
     df : pandas.DataFrame
         pandas DataFrame with chrom, pos and pv
@@ -39,7 +39,7 @@ def qqplot(
 
         >>> from limix_lmm.plot import qqplot
         >>> import scipy as sp
-        >>> import pylab as plt
+        >>> from matplotlib import pyplot as plot
         >>>
         >>> pv1 = sp.rand(10000)
         >>> pv2 = sp.rand(10000)
@@ -56,16 +56,16 @@ def qqplot(
     if plot_method is not None:
         plot_method(pvt, pvo)
     else:
-        pl.plot(pvt, pvo, marker=".k", color=color)
+        ax.plot(pvt, pvo, marker=".", color=color)
 
     if plot_xyline:
-        xlim1, xlim2 = plt.get_xlim()
-        ylim1, ylim2 = plt.get_ylim()
+        xlim1, xlim2 = ax.get_xlim()
+        ylim1, ylim2 = ax.get_ylim()
         xlim1 = -sp.log10(pv_thr)
         ylim1 = -sp.log10(pv_thr)
-        pl.plot([xlim1, xlim2], [xlim1, xlim2], xyline_color)
-        plt.set_xlim(xlim1, xlim2)
-        plt.set_ylim(ylim1, ylim2)
+        ax.plot([xlim1, xlim2], [xlim1, xlim2], xyline_color)
+        ax.set_xlim(xlim1, xlim2)
+        ax.set_ylim(ylim1, ylim2)
     if xy_labels:
-        pl.xlabel("Expected P values")
-        pl.ylabel("Observed P values")
+        ax.set_xlabel("Expected P values")
+        ax.set_ylabel("Observed P values")
