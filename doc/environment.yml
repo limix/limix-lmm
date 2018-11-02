@@ -1,6 +1,7 @@
-name: struct-lmm
+name: -limix-lmm
 channels:
   - conda-forge
   - defaults
+  - matplotlib
 dependencies:
   - bgen-reader
