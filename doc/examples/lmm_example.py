@@ -11,9 +11,9 @@ if __name__ == "__main__":
     from limix_core.covar import FreeFormCov
     from limix_lmm.lmm_core import LMM
     from pandas_plink import read_plink
-    import limix_core as lxc
+    from sklearn.impute import SimpleImputer
     import geno_sugar as gs
-    from sklearn.preprocessing import Imputer
+    import geno_sugar.preprocess as prep
 
     # import genotype file
     bedfile = "data_structlmm/chrom22_subsample20_maf0.10"
@@ -49,23 +49,24 @@ if __name__ == "__main__":
     lmm = LMM(pheno, covs, gp.covar.solve)
 
     # define geno preprocessing function
-    impute = gs.preprocess.impute(
-        Imputer(missing_values=np.nan, strategy="mean", axis=1)
+    imputer = SimpleImputer(missing_values=np.nan, strategy="mean")
+    preprocess = prep.compose(
+        [
+            prep.filter_by_missing(max_miss=0.10),
+            prep.impute(imputer),
+            prep.filter_by_maf(min_maf=0.10),
+            prep.standardize(),
+        ]
     )
-    standardize = gs.preprocess.standardize()
-    preprocess = gs.preprocess.compose([impute, standardize])
 
     # loop on geno
     res = []
-    n_analyzed = 0
     queue = gs.GenoQueue(G, bim, batch_size=200, preprocess=preprocess)
     for _G, _bim in queue:
-        pv, beta = lmm.process(_G.T)
+        pv, beta = lmm.process(_G)
         _bim = _bim.assign(lmm_pv=pd.Series(pv, index=_bim.index))
         _bim = _bim.assign(lmm_beta=pd.Series(beta, index=_bim.index))
         res.append(_bim)
-        n_analyzed += _G.shape[0]
-        print(".. analysed %d/%d variants" % (n_analyzed, G.shape[0]))
 
     res = pd.concat(res)
     res.reset_index(inplace=True, drop=True)

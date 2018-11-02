@@ -1,6 +1,6 @@
-=========================
-StructLMM's documentation
-=========================
+=======================
+LIMIX-LMM documentation
+=======================
 
 .. toctree::
    :caption: Table of contents
@@ -17,4 +17,4 @@ Comments and bugs
 
 You can get the source and open issues `on Github.`_
 
-.. _on Github.: https://github.com/limix/struct-lmm
+.. _on Github.: https://github.com/limix/limix-lmm
