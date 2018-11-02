@@ -2,6 +2,6 @@ name: -limix-lmm
 channels:
   - conda-forge
   - defaults
-  - matplotlib
 dependencies:
   - bgen-reader
+  - matplotlib
