@@ -1,5 +1,5 @@
 from .lmm_core import LMMCore, calc_Ai_beta_s2
-from .mtlmm_helper import MTLMMHelper
+from .mtlmm_helper import define_helper
 import scipy as sp
 import scipy.stats as st
 from time import time
@@ -62,7 +62,7 @@ class MTLMM(LMMCore):
             Asnp = sp.eye(Y.shape[1])
 
         # the helper implements methods that are specific to the covariance
-        self.helper = MTLMMHelper(Y, F, A, Asnp, covar)
+        self.helper = define_helper(Y, F, A, Asnp, covar)
 
         # store useful stuff
         self.Y = Y

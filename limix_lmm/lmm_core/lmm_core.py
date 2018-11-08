@@ -1,23 +1,5 @@
+from .util import calc_Ai_beta_s2, hatodot
 from time import time
-
-
-def calc_Ai_beta_s2(yKiy, FKiF, FKiy, df):
-    import scipy as sp
-    import scipy.linalg as la
-
-    Ai = la.pinv(FKiF)
-    beta = sp.dot(Ai, FKiy)
-    s2 = (yKiy - sp.dot(FKiy[:, 0], beta[:, 0])) / df
-    return Ai, beta, s2
-
-
-def hatodot(A, B):
-    """ should be implemented in C """
-    import scipy as sp
-
-    A1 = sp.kron(A, sp.ones((1, B.shape[1])))
-    B1 = sp.kron(sp.ones((1, A.shape[1])), B)
-    return A1 * B1
 
 
 class LMMCore:
