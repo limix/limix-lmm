@@ -41,11 +41,14 @@ if __name__ == "__main__":
     from limix_core.gp import GP2KronSum
     from limix_core.covar import FreeFormCov
 
-    N = 1000
+    N = 200
     P = 4
+    M = 2
     K = 2
-    S = 500
+    S = 10
     Y, F, G, B0, Cg0, Cn0 = generate_data(N, P, K, S)
+    A = sp.eye(P)
+    Asnp = sp.rand(P, M)
 
     # compute eigenvalue decomp of RRM
     R = sp.dot(G, G.T)
@@ -66,5 +69,18 @@ if __name__ == "__main__":
 
     # run MTLMM
     from limix_lmm.lmm_core import MTLMM
-    mtlmm = MTLMM(Y, F=F, A=sp.eye(P), Asnp=sp.eye(P), covar=gp.covar)
+    mtlmm = MTLMM(Y, F=F, A=A, Asnp=Asnp, covar=gp.covar)
     pv, B = mtlmm.process(G)
+
+    # run standard LMMcore
+    from limix_lmm.lmm_core import LMMCore
+    y = sp.reshape(Y, [Y.size, 1], order='F')
+    covs = sp.kron(A, F)
+    Aext = sp.kron(Asnp, sp.ones((G.shape[0], 1)))
+    Gext = sp.kron(sp.ones((Asnp.shape[0], 1)), G)
+    Wext = sp.einsum("ip,in->inp", Aext, Gext).reshape(Aext.shape[0], -1)
+    stlmm = LMMCore(y, covs, Ki_dot=gp.covar.solve)
+    pv0, B0 = stlmm.process(Wext, step=Asnp.shape[1])
+
+    print(((pv0-pv)**2).mean())
+    print(((B0-B)**2).mean())
