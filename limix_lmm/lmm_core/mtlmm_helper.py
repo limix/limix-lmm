@@ -6,6 +6,8 @@ def define_helper(Y, F, A, Asnp, covar=None):
     if covar is None:
         return MTLMMHelperBase(Y, F, A, Asnp)
     else:
+        # at the moment only Cov2KronSum is supported but
+        # more covariances can be added within the same framework
         covtypes = [limix_core.covar.Cov2KronSum]
         assert type(covar) in covtypes, 'This covariance type is not supported'
         if type(covar==limix_core.covar.Cov2KronSum):
