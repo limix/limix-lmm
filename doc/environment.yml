@@ -1,7 +1,0 @@
-name: -limix-lmm
-channels:
-  - conda-forge
-  - defaults
-dependencies:
-  - bgen-reader
-  - matplotlib
