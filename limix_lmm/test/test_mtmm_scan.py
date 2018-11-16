@@ -1,4 +1,7 @@
-def generate_data(N, P, K, S):
+from numpy.testing import assert_allclose
+
+
+def _generate_data(N, P, K, S):
     import scipy as sp
 
     # fixed eff
@@ -35,7 +38,7 @@ def generate_data(N, P, K, S):
     return Y, F, G, B0, Cg0, Cn0
 
 
-if __name__ == "__main__":
+def test_mtmm_scan_pv_beta():
     import scipy as sp
     import scipy.linalg as la
     from limix_core.gp import GP2KronSum
@@ -46,7 +49,7 @@ if __name__ == "__main__":
     M = 2
     K = 2
     S = 10
-    Y, F, G, B0, Cg0, Cn0 = generate_data(N, P, K, S)
+    Y, F, G, B0, Cg0, Cn0 = _generate_data(N, P, K, S)
     A = sp.eye(P)
     Asnp = sp.rand(P, M)
 
@@ -64,23 +67,24 @@ if __name__ == "__main__":
     gp.covar.Cn.setCovariance(0.5 * sp.cov(Y.T))
     gp.optimize(factr=10)
 
-    import pdb
-    pdb.set_trace()
-
     # run MTLMM
     from limix_lmm.lmm_core import MTLMM
+
     mtlmm = MTLMM(Y, F=F, A=A, Asnp=Asnp, covar=gp.covar)
     pv, B = mtlmm.process(G)
 
     # run standard LMMcore
     from limix_lmm.lmm_core import LMMCore
-    y = sp.reshape(Y, [Y.size, 1], order='F')
+
+    y = sp.reshape(Y, [Y.size, 1], order="F")
     covs = sp.kron(A, F)
     Aext = sp.kron(Asnp, sp.ones((G.shape[0], 1)))
     Gext = sp.kron(sp.ones((Asnp.shape[0], 1)), G)
     Wext = sp.einsum("ip,in->inp", Aext, Gext).reshape(Aext.shape[0], -1)
     stlmm = LMMCore(y, covs, Ki_dot=gp.covar.solve)
-    pv0, B0 = stlmm.process(Wext, step=Asnp.shape[1])
+    stlmm.process(Wext, step=Asnp.shape[1])
+    pv0 = stlmm.getPv()
+    B0 = stlmm.getBetaSNP()
 
-    print(((pv0-pv)**2).mean())
-    print(((B0-B)**2).mean())
+    assert_allclose(pv0, pv, atol=1e-9)
+    assert_allclose(B0, B, atol=1e-9)
