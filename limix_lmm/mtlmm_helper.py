@@ -1,23 +1,26 @@
 import scipy as sp
-import limix_core
 from .util import christof_trick
 
+
 def define_helper(Y, F, A, Asnp, covar=None):
+    import limix_core
+
     if covar is None:
         return MTLMMHelperBase(Y, F, A, Asnp)
     else:
         # at the moment only Cov2KronSum is supported but
         # more covariances can be added within the same framework
         covtypes = [limix_core.covar.Cov2KronSum]
-        assert type(covar) in covtypes, 'This covariance type is not supported'
-        if type(covar==limix_core.covar.Cov2KronSum):
+        assert type(covar) in covtypes, "This covariance type is not supported"
+        if type(covar == limix_core.covar.Cov2KronSum):
             return MTLMMHelper2KronSum(Y, F, A, Asnp, covar)
 
 
-class MTLMMHelperBase():
+class MTLMMHelperBase:
     r"""
     Internal helper class for MTLMM
     """
+
     def __init__(self, Y, F, A, Asnp):
         self._Y = Y
         self._F = F
@@ -30,11 +33,11 @@ class MTLMMHelperBase():
 
     def get_WKiy(self):
         RV = sp.dot(self._F.T, self._Y.dot(self._A))
-        RV = sp.reshape(RV, [RV.size, 1], order='F')
+        RV = sp.reshape(RV, [RV.size, 1], order="F")
         return RV
 
     def get_yKiy(self):
-        return sp.einsum('ip,ip->', self.LY, self._Y)
+        return sp.einsum("ip,ip->", self.LY, self._Y)
 
     def get_WKiW(self):
         return christof_trick(self._A, self._F, sp.ones(self.Y.size))
@@ -43,11 +46,9 @@ class MTLMMHelperBase():
         return sp.dot(self._YAsnp.T, self._g)
 
     def get_W1KiW1_12(self):
-        return christof_trick(self._A,
-                              self._F,
-                              sp.ones(self.Y.size),
-                              A2 = self._Asnp,
-                              F2 = self._g)
+        return christof_trick(
+            self._A, self._F, sp.ones(self.Y.size), A2=self._Asnp, F2=self._g
+        )
 
     def get_W1KiW1_22(self):
         return christof_trick(self._Asnp, self._g, sp.ones(self.Y.size))
@@ -79,11 +80,11 @@ class MTLMMHelper2KronSum(MTLMMHelperBase):
 
     def get_WKiy(self):
         RV = sp.dot(self._F.T, self._Y.dot(self._A))
-        RV = sp.reshape(RV, [RV.size, 1], order='F')
+        RV = sp.reshape(RV, [RV.size, 1], order="F")
         return RV
 
     def get_yKiy(self):
-        return sp.einsum('ip,ip->', self.LY, self._Y)
+        return sp.einsum("ip,ip->", self.LY, self._Y)
 
     def get_WKiW(self):
         return christof_trick(self._A, self._F, self.covar.D())
@@ -92,11 +93,9 @@ class MTLMMHelper2KronSum(MTLMMHelperBase):
         return sp.dot(self._YAsnp.T, self._g)
 
     def get_W1KiW1_12(self):
-        return christof_trick(self._A,
-                              self._F,
-                              self.covar.D(),
-                              A2 = self._Asnp,
-                              F2 = self._g)
+        return christof_trick(
+            self._A, self._F, self.covar.D(), A2=self._Asnp, F2=self._g
+        )
 
     def get_W1KiW1_22(self):
         return christof_trick(self._Asnp, self._g, self.covar.D())

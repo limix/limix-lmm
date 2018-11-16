@@ -11,7 +11,10 @@ from __future__ import absolute_import as _absolute_import
 from . import plot
 from .lmm_core import LMM
 from ._testit import test
+from .lmm_core import LMMCore
+from .mtlmm import MTLMM
+
 
 __version__ = "0.0.1"
 
-__all__ = ["LMM", "plot", "__version__", "test"]
+__all__ = ["LMM", "LMMCore", "MTLMM", "plot", "__version__", "test"]
