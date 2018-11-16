@@ -22,11 +22,13 @@ def hatodot(A, B):
 
 
 def christof_trick(A1, F1, D, A2=None, F2=None):
-    if A2 is None:  A2 = A1
-    if F2 is None:  F2 = F1
+    if A2 is None:
+        A2 = A1
+    if F2 is None:
+        F2 = F1
     out = sp.zeros([A1.shape[1] * F1.shape[1], A2.shape[1] * F2.shape[1]])
     for c in range(A1.shape[0]):
-        Oc = sp.dot(A1[[c],:].T, A2[[c],:])
-        Or = sp.dot(F1.T, D[:,[c]] * F2)
+        Oc = sp.dot(A1[[c], :].T, A2[[c], :])
+        Or = sp.dot(F1.T, D[:, [c]] * F2)
         out += sp.kron(Oc, Or)
     return out

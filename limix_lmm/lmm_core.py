@@ -1,5 +1,6 @@
-from .util import calc_Ai_beta_s2, hatodot
 from time import time
+
+from .util import calc_Ai_beta_s2, hatodot
 
 
 class LMMCore:

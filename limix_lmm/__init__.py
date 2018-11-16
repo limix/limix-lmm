@@ -11,9 +11,9 @@ from __future__ import absolute_import as _
 
 from . import plot
 from .lmm import LMM
-from ._testit import test
 from .lmm_core import LMMCore
 from .mtlmm import MTLMM
+from ._testit import test
 
 
 __version__ = "0.0.1"
