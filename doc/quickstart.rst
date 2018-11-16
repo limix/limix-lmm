@@ -177,12 +177,16 @@ Multi-trait Linear Mixed Model (MTLMM)
     mtlmm.process(G)
     pv = mtlmm.getPv()
     B = mtlmm.getBetaSNP()
-    print(pv)
-    print(B)
+    print(pv[:5])
+    print(B[:5])
 
 .. testoutput::
 
-    asd
+    Marginal likelihood optimization.
+        ('Converged:', True)
+        Time elapsed: 2.22 s
+        Log Marginal Likelihood: 1387.3330379.
+        Gradient norm: 0.0000970.
 
 A full description of all methods can be found in :ref:`public`.
 
