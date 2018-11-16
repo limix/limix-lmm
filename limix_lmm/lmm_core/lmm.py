@@ -158,4 +158,3 @@ class LMM(LMMCore):
         if verbose:
             print("Tested for %d variants in %.2f s" % (G.shape[1], t1 - t0))
 
-        return self.pv, self.beta_g
