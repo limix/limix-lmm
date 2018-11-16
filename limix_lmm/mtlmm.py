@@ -1,8 +1,10 @@
-from .lmm_core import LMMCore, calc_Ai_beta_s2
-from .mtlmm_helper import define_helper
+from time import time
+
 import scipy as sp
 import scipy.stats as st
-from time import time
+
+from .lmm_core import LMMCore, calc_Ai_beta_s2
+from .mtlmm_helper import define_helper
 
 
 class MTLMM(LMMCore):
@@ -105,7 +107,7 @@ class MTLMM(LMMCore):
         self.beta_g = sp.zeros([m, G.shape[1]])
         for s in range(G.shape[1]):
             self.helper.set_g(G[:, [s]])
-            W1Kiy[k:, 0] = self.helper.get_W1Kiy_2()[:,0]
+            W1Kiy[k:, 0] = self.helper.get_W1Kiy_2()[:, 0]
             W1KiW1[:k, k:] = self.helper.get_W1KiW1_12()
             W1KiW1[k:, :k] = W1KiW1[:k, k:].T
             W1KiW1[k:, k:] = self.helper.get_W1KiW1_22()

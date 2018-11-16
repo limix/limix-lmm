@@ -68,7 +68,7 @@ def test_mtmm_scan_pv_beta():
     gp.optimize(factr=10)
 
     # run MTLMM
-    from limix_lmm.lmm_core import MTLMM
+    from limix_lmm import MTLMM
 
     mtlmm = MTLMM(Y, F=F, A=A, Asnp=Asnp, covar=gp.covar)
     pv, B = mtlmm.process(G)

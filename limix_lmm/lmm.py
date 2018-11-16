@@ -1,5 +1,6 @@
-from .lmm_core import LMMCore
 from time import time
+
+from .lmm_core import LMMCore
 
 
 class LMM(LMMCore):
@@ -157,4 +158,3 @@ class LMM(LMMCore):
         t1 = time()
         if verbose:
             print("Tested for %d variants in %.2f s" % (G.shape[1], t1 - t0))
-

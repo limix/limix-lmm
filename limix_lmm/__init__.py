@@ -7,11 +7,15 @@ Flexible Linear mixed model Toolbox for Genome-wide association studies
 
 """
 
-from __future__ import absolute_import as _absolute_import
+from __future__ import absolute_import as _
+
 from . import plot
-from .lmm_core import LMM
+from .lmm import LMM
+from .lmm_core import LMMCore
+from .mtlmm import MTLMM
 from ._testit import test
+
 
 __version__ = "0.0.1"
 
-__all__ = ["LMM", "plot", "__version__", "test"]
+__all__ = ["LMM", "LMMCore", "MTLMM", "plot", "__version__", "test"]
