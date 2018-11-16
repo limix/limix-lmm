@@ -14,8 +14,9 @@ from .lmm import LMM
 from .lmm_core import LMMCore
 from .mtlmm import MTLMM
 from ._testit import test
+from .sh import download, unzip
 
 
 __version__ = "0.0.1"
 
-__all__ = ["LMM", "LMMCore", "MTLMM", "plot", "__version__", "test"]
+__all__ = ["LMM", "LMMCore", "MTLMM", "plot", "download", "unzip", "__version__", "test"]
