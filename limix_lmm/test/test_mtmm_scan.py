@@ -86,5 +86,5 @@ def test_mtmm_scan_pv_beta():
     pv0 = stlmm.getPv()
     B0 = stlmm.getBetaSNP()
 
-    assert_allclose(pv0, pv, atol=1e-9)
-    assert_allclose(B0, B, atol=1e-9)
+    assert_allclose(pv0, pv, rtol=1e-06, atol=1e-06)
+    assert_allclose(B0, B, rtol=1e-06, atol=1e-06)
