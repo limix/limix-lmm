@@ -39,7 +39,7 @@ latex_documents = [
         master_doc,
         "limix_lmm.tex",
         "Limix-LMM Documentation",
-        "Rachel Moore, Francesco Paolo Casale, Oliver Stegle",
+        "Francesco Paolo Casale, Danilo Horta, Oliver Stegle",
         "manual",
     )
 ]
@@ -51,7 +51,7 @@ texinfo_documents = [
         "Limix-LMM Documentation",
         author,
         "limix_lmm",
-        "A mixed-model approach to model complex GxE signals.",
+        "Linear Mixed Models for Statistical Genetics.",
         "Miscellaneous",
     )
 ]
