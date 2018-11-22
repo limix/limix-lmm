@@ -1,5 +1,6 @@
 import scipy as sp
 import scipy.linalg as la
+import pandas as pd
 
 
 def calc_Ai_beta_s2(yKiy, FKiF, FKiy, df):
@@ -32,3 +33,13 @@ def christof_trick(A1, F1, D, A2=None, F2=None):
         Or = sp.dot(F1.T, D[:, [c]] * F2)
         out += sp.kron(Oc, Or)
     return out
+
+
+def append_res(_bim, res):
+    """ add new columns to a pandas dataframe with the specified prefix """
+    RV = [_bim]
+    for _prefix, _res in res.items():
+        _res.columns = ['%s_%s' % (_prefix, _key) for _key in _res.keys()]
+        RV.append(_res)
+    RV = pd.concat(RV, 1)
+    return RV

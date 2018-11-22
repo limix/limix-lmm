@@ -3,7 +3,8 @@ from time import time
 import scipy as sp
 import scipy.stats as st
 
-from .lmm_core import LMMCore, calc_Ai_beta_s2
+from .lmm_core import LMMCore
+from .util import calc_Ai_beta_s2
 from .mtlmm_helper import define_helper
 
 
