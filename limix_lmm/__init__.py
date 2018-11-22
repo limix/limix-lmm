@@ -12,7 +12,6 @@ from __future__ import absolute_import as _
 from . import plot
 from .lmm import LMM
 from .lmm_core import LMMCore
-from .gwas import GWAS_LMM, GWAS_MTLMM
 from .mtlmm import MTLMM
 from ._testit import test
 from .sh import download, unzip
