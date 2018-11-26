@@ -46,7 +46,6 @@ def qqplot(
         >>> qqplot(ax, pv2, color='C1')
         >>> qqplot(ax, pv3, color='C2', plot_xyline=True, xy_labels=True)
     """
-    from matplotlib import pyplot as plt
     import scipy as sp
 
     pv1 = pv[pv < pv_thr]

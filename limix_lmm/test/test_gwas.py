@@ -4,19 +4,15 @@ import pandas as pd
 import scipy as sp
 import scipy.linalg as la
 from limix_core.util.preprocess import gaussianize
-from limix_core.gp import GP2KronSumLR
-from limix_core.covar import FreeFormCov
 from limix_lmm import GWAS_LMM, GWAS_MTLMM
 from limix_lmm import download, unzip
 from pandas_plink import read_plink
 from sklearn.impute import SimpleImputer
 import geno_sugar as gs
 import geno_sugar.preprocess as prep
-import pdb
 
 
-if __name__=='__main__':
-
+if __name__ == "__main__":
 
     # download data
     download("http://www.ebi.ac.uk/~casale/data_structlmm.zip")
@@ -32,15 +28,13 @@ if __name__=='__main__':
     # define genetic relatedness matrix
     W_R = sp.randn(fam.shape[0], 20)
     R = sp.dot(W_R, W_R.T)
-    R/= R.diagonal().mean()
+    R /= R.diagonal().mean()
     S_R, U_R = la.eigh(R)
-
 
     # load phenotype data
     phenofile = "data_structlmm/expr.csv"
     dfp = pd.read_csv(phenofile, index_col=0)
     pheno = gaussianize(dfp.loc["gene1"].values[:, None])
-
 
     # define covs
     covs = sp.ones([pheno.shape[0], 1])
@@ -86,7 +80,9 @@ if __name__=='__main__':
 
     # common effect test
     Asnps0 = sp.ones([P, 1])
-    mtlmm = GWAS_MTLMM(phenos, covs=covs, Asnps=Asnps, Asnps0=Asnps0, eigh_R=(S_R, U_R), verbose=True)
+    mtlmm = GWAS_MTLMM(
+        phenos, covs=covs, Asnps=Asnps, Asnps0=Asnps0, eigh_R=(S_R, U_R), verbose=True
+    )
     res = mtlmm.process(snps)
     print(res.head())
 
@@ -113,9 +109,9 @@ if __name__=='__main__':
     for _G, _bim in queue:
 
         _res = {}
-        _res['lm'] = lm.process(_G)
-        _res['lmm'] = lmm.process(_G)
-        _res['lrlmm'] = lrlmm.process(_G)
+        _res["lm"] = lm.process(_G)
+        _res["lmm"] = lmm.process(_G)
+        _res["lrlmm"] = lrlmm.process(_G)
         _res = append_res(_bim, _res)
         _res.append(_res)
 
