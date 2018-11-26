@@ -27,5 +27,5 @@ LMM Core Classes
 
 Plot functions
 ^^^^^^^^^^^^^^
-.. automodule:: limix_lmm.plot 
+.. automodule:: limix_lmm.plot
   :members:
