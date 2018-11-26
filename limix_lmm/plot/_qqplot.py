@@ -1,3 +1,6 @@
+import scipy as sp
+
+
 def qqplot(
     ax,
     pv,
@@ -46,7 +49,6 @@ def qqplot(
         >>> qqplot(ax, pv2, color='C1')
         >>> qqplot(ax, pv3, color='C2', plot_xyline=True, xy_labels=True)
     """
-    import scipy as sp
 
     pv1 = pv[pv < pv_thr]
     pvo = -sp.log10(sp.sort(pv1))
