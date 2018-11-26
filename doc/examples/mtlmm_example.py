@@ -62,9 +62,11 @@ if __name__ == "__main__":
     gp.optimize(factr=10)
 
     import pdb
+
     pdb.set_trace()
 
     # run MTLMM
     from limix_lmm.lmm_core import MTLMM
+
     mtlmm = MTLMM(Y, F=F, A=sp.eye(P), Asnp=sp.eye(P), covar=gp.covar)
     pv, B = mtlmm.process(G)

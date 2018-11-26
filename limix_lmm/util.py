@@ -1,5 +1,4 @@
 import scipy as sp
-import scipy.linalg as la
 import pandas as pd
 
 
@@ -39,7 +38,7 @@ def append_res(_bim, res):
     """ add new columns to a pandas dataframe with the specified prefix """
     RV = [_bim]
     for _prefix, _res in res.items():
-        _res.columns = ['%s_%s' % (_prefix, _key) for _key in _res.keys()]
+        _res.columns = ["%s_%s" % (_prefix, _key) for _key in _res.keys()]
         RV.append(_res)
     RV = pd.concat(RV, 1)
     return RV

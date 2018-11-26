@@ -1,11 +1,8 @@
 if __name__ == "__main__":
-    import time
-    import sys
     import os
     import numpy as np
     import pandas as pd
     import scipy as sp
-    from optparse import OptionParser
     from limix_core.util.preprocess import gaussianize
     from limix_core.gp import GP2KronSumLR
     from limix_core.covar import FreeFormCov

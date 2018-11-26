@@ -19,4 +19,13 @@ from .sh import download, unzip
 
 __version__ = "0.1.1"
 
-__all__ = ["LMM", "LMMCore", "MTLMM", "plot", "download", "unzip", "__version__", "test"]
+__all__ = [
+    "LMM",
+    "LMMCore",
+    "MTLMM",
+    "plot",
+    "download",
+    "unzip",
+    "__version__",
+    "test",
+]

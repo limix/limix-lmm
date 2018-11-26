@@ -1,5 +1,4 @@
 import sys
-import warnings
 
 PY2 = sys.version_info < (3,)
 
