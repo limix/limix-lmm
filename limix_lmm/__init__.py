@@ -17,7 +17,7 @@ from ._testit import test
 from .sh import download, unzip
 
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 __all__ = [
     "LMM",
