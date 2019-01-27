@@ -16,7 +16,7 @@ pip install limix-lmm
 ## Documentation
 
 The public interface and a quick start in python are available at
-[http://limix-lmm.readthedocs.io/](http://struct-lmm.readthedocs.io/).
+[http://limix-lmm.readthedocs.io/](http://limix-lmm.readthedocs.io/).
 
 ## Problems
 
